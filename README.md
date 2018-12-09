@@ -1,11 +1,15 @@
 # Prerequisites
-Needed for mounting synced folders
+Needed for mounting synced folders:
+
     vagrant plugin install vagrant-vbguest
-Needed for vagrant provision docker-compose
+
+Needed for vagrant provision docker-compose:
+
     vagrant plugin install vagrant-docker-compose
 
 # vagrant up fails to mount folders
 Workaround
+
     vagrant ssh
     sudo yum update -y
     exit

@@ -1,0 +1,4 @@
+# Vagrant generated items
+.vagrant
+# Items from shared folders
+share/*/

@@ -1,0 +1,10 @@
+# Executed from Vagrant
+# Can be run also manually, as user vagrant, with: `ansible-playbook docker-vm-provisioning.yml -i inventory`
+# Add -v for verbose or -vvv for more
+---
+
+- name: Configure CentOS7 with stuff
+  hosts: dkr
+  become: yes
+  roles:
+    - role: linux-env

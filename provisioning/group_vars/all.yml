@@ -1,0 +1,4 @@
+# Vagrant provisioning directory. Should be same as in Vagrantfile
+vagrant_provisioning: /vagrant_provisioning
+# Shared directory. Should be same as in Vagrantfile
+share_folder: /vagrant_share

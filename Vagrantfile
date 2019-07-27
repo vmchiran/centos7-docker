@@ -19,6 +19,10 @@ Vagrant.configure("2") do |config|
   # `vagrant box outdated`. This is not recommended.
   # config.vm.box_check_update = false
 
+  # if Vagrant.has_plugin?("vagrant-vbguest")
+  #   config.vbguest.auto_update = false
+  # end
+  
   # Create a forwarded port mapping which allows access to a specific port
   # within the machine from a port on the host machine. In the example below,
   # accessing "localhost:8080" will access port 80 on the guest machine.
@@ -72,10 +76,14 @@ Vagrant.configure("2") do |config|
   # SHELL
 
   config.vm.define "dkr" do |machine|
-    # Running on Ethernet adapter VirtualBox Host-Only Network #3
+    # Running on Ethernet adapter VirtualBox Host-Only Network #2
     machine.vm.network "private_network", ip: "172.16.0.100"
 
-    # machine.vm.network "forwarded_port", guest: 8080, host: 8080
+    # Port 8080 to be used by local fn server
+    machine.vm.network "forwarded_port", guest: 8080, host: 8080
+    # Port 4000 to be used by local fn monitoring dashboard
+    machine.vm.network "forwarded_port", guest: 4000, host: 4000
+    
 
     machine.vm.provider "virtualbox" do |vb|
       vb.memory = 4096
@@ -87,7 +95,6 @@ Vagrant.configure("2") do |config|
 
     machine.vm.provision "ansible_local" do |ansible|
       ansible.playbook = "docker-vm-provisioning.yml"
-      ansible.install_mode = "pip"
       ansible.provisioning_path = "/vagrant_provisioning"
 
       # Default ansible.tmp_path is

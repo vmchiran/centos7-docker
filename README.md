@@ -1,4 +1,9 @@
 # Prerequisites
+The project was tested on a machine with Windows 10 64-bit and virtualization enabled.
+* VirtualBox - latest; project was tested on version 6.0.10
+* Vagrant - latest; project was tested on version 2.2.5
+* Vagrant plugins:
+
 Needed for mounting synced folders:
 
     vagrant plugin install vagrant-vbguest

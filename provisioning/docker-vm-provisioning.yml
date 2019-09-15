@@ -3,8 +3,80 @@
 # Add -v for verbose or -vvv for more
 ---
 
-- name: Configure CentOS7 with stuff
+- name: Configure CentOS7 with docker
   hosts: dkr
-  become: yes
-  roles:
-    - role: linux-env
+  tasks:
+    # ==> Upgrade existing packages
+    - name: Upgrade existing packages
+      become: yes
+      yum:
+        name: '*'
+        state: latest
+
+    # ==> Install epel-release, needed by pip, jq
+    - name: Install epel-release
+      become: yes
+      yum:
+        name: epel-release
+        state: present
+
+    # ==> Install packages: tree and unzip are optional, jq is used for some docker commands, pip is used for docker-compose
+    - name: Install packages
+      become: yes
+      yum:
+        name:
+          - tree
+          - unzip
+          - python-pip
+          - jq
+        state: present
+
+    # ==> Install packages for docker
+    - name: Install dependencies packages for docker
+      become: yes
+      yum:
+        name:
+          - yum-utils
+          - device-mapper-persistent-data
+          - lvm2
+        state: present
+
+    - name: Add the docker-ce stable repository
+      become: yes
+      shell: yum-config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo
+      args:
+        creates: /etc/yum.repos.d/docker-ce.repo
+
+    - name: Install docker-ce
+      become: yes
+      yum:
+        name:
+          - docker-ce
+        state: present
+
+    - name: Start docker
+      become: yes
+      systemd:
+        daemon_reload: yes
+        state: started
+        enabled: yes
+        name: docker
+
+    - name: Add user to group docker, to be able to run docker commands without sudo
+      become: yes
+      user:
+        name: "{{ ansible_env.USER }}"
+        groups: docker
+        append: yes
+
+    - name: Install docker-compose
+      become: yes
+      pip:
+        name:
+          - docker-compose
+
+    # - name: Make sure that service firewalld is running
+    #   become: yes
+    #   systemd:
+    #     state: started
+    #     name: firewalld

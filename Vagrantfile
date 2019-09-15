@@ -77,18 +77,20 @@ Vagrant.configure("2") do |config|
 
   config.vm.define "dkr" do |machine|
     # Running on Ethernet adapter VirtualBox Host-Only Network #2
-    machine.vm.network "private_network", ip: "172.16.0.100"
+    # machine.vm.network "private_network", ip: "172.16.0.100"
 
     # Port 8080 to be used by local fn server
-    machine.vm.network "forwarded_port", guest: 8080, host: 8080
+    # machine.vm.network "forwarded_port", guest: 8080, host: 8080
     # Port 4000 to be used by local fn monitoring dashboard
-    machine.vm.network "forwarded_port", guest: 4000, host: 4000
+    # machine.vm.network "forwarded_port", guest: 4000, host: 4000
+    # Port 3000 to be used by a test service
+    machine.vm.network "forwarded_port", guest: 3000, host: 3000
     
 
     machine.vm.provider "virtualbox" do |vb|
-      vb.memory = 4096
-      vb.cpus = 2
-      vb.name = "CentOS7_dkr"
+      vb.memory = 2048
+      vb.cpus = 1
+      vb.name = "docker_CentOS7"
       vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
       vb.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
     end
@@ -107,18 +109,6 @@ Vagrant.configure("2") do |config|
       ansible.inventory_path = "inventory"
 
       ansible.config_file = "ansible.cfg"
-    end
-
-    # # Set up Docker in the new VM:
-    # machine.vm.provision :docker
-    # # Install docker-compose into the VM and run the docker-compose.yml file - if it exists -  whenever the  VM starts (https://github.com/leighmcculloch/vagrant-docker-compose)
-    # machine.vm.provision :docker_compose, yml: "/vagrant_provisioning/docker-compose.yml", run:"always"
-
-    # Set up Docker in the new VM:
-    machine.vm.provision "docker" do |d|
-    end
-    # Set up Docker Compose in the new VM:
-    machine.vm.provision "docker_compose" do |dc|
     end
   end
 end

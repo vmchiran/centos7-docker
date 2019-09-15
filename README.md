@@ -22,7 +22,12 @@ Workaround
 
 # my Ad-Hoc commands
 ## Install Jenkins as container
-`docker run -u root --rm -d -p 8080:8080 -p 50000:50000 -v jenkins-data:/var/jenkins_home -v /var/run/docker.sock:/var/run/docker.sock jenkinsci/blueocean`
+
+    docker run -u root --rm -d \
+    -p 8080:8080 -p 50000:50000 \
+    -v jenkins-data:/var/jenkins_home \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    jenkinsci/blueocean
 
 ## Docker Quick Start Guide
 ~~~
@@ -83,3 +88,5 @@ docker-machine create -d virtualbox swarm-manager
 * Disaster Girl Meme [Worked fine in dev ops problem now](http://www.developermemes.com/2013/12/13/worked-fine-dev-ops-problem-now/)
 * Mastering Docker - Third Edition, By Russ McKendrick, Scott Gallagher, October 2018, [Link](https://www.packtpub.com/virtualization-and-cloud/mastering-docker-third-edition)
 * Docker Quick Start Guide, By Earl Waud, November 2018, [Link](https://www.packtpub.com/networking-and-servers/docker-quick-start-guide)
+
+* http://www.linuxbrigade.com/centos-7-rhel-7-open-ports/

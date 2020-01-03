@@ -1,0 +1,146 @@
+# Executed from Vagrant
+# Can be run also manually, as user vagrant, with: `ansible-playbook grafana-docker-provisioning.yml -i inventory`
+# Add -v for verbose or -vvv for more
+---
+
+- name: Configure CentOS7 with Docker and Grafana
+  hosts: dkr
+  tasks:
+    # # ==> Upgrade all packages
+    # - name: Upgrade all packages
+    #   become: yes
+    #   yum:
+    #     name: '*'
+    #     state: latest
+
+    # # ==> Install repos, for latest python, pip
+    # - name: Install IUS repo
+    #   become: yes
+    #   yum:
+    #     name:
+    #       - "https://repo.ius.io/ius-release-el7.rpm"
+    #       - "https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm"
+    #     state: present
+
+    # # ==> Install packages
+    # - name: Install packages
+    #   become: yes
+    #   yum:
+    #     name:
+    #       - tree
+    #       - unzip
+    #       - python-pip
+    #       - jq
+    #     state: present
+
+    # # ==> Upgrade pip
+    # - name: Upgrade pip
+    #   become: yes
+    #   pip:
+    #     name: pip
+    #     state: latest
+
+    # # ==> Install Docker CE
+
+    # - name: Add the docker-ce stable repository
+    #   become: yes
+    #   shell: yum-config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo
+    #   args:
+    #     creates: /etc/yum.repos.d/docker-ce.repo
+
+    # - name: Install docker-ce
+    #   become: yes
+    #   yum:
+    #     name:
+    #       - docker-ce
+    #     state: present
+
+    # - name: Start docker
+    #   become: yes
+    #   systemd:
+    #     daemon_reload: yes
+    #     state: started
+    #     enabled: yes
+    #     name: docker
+
+    # - name: Add user to group docker, to be able to run docker commands without sudo
+    #   become: yes
+    #   user:
+    #     name: "{{ ansible_env.USER }}"
+    #     groups: docker
+    #     append: yes
+ 
+    # - name: Install docker sdk for python
+    #   # become: yes
+    #   pip:
+    #     name: docker
+    #     extra_args: --user
+    #     state: present
+
+    # ==> Install Grafana
+
+    - name: Open ports for Grafana
+      become: yes
+      firewalld:
+        port: "{{ item }}"
+        permanent: yes
+        state: enabled
+      with_items:
+        - 3001/tcp
+        - 3002/tcp
+      notify: reload firewalld
+
+    # ==> Grafana 1 - with default uid and gid for grafana docker
+    - name: Create data directory for Grafana
+      become: yes
+      file: 
+        state: directory
+        path: "{{ ansible_env.HOME }}/grafana-data"
+        owner: 472
+        group: 472
+
+    - name: Create a container for Grafana
+      docker_container:
+        name: nemo-grafana
+        image: grafana/grafana
+        state: started
+        mounts:
+          - target: "/var/lib/grafana"
+            source: "{{ ansible_env.HOME }}/grafana-data"
+            type: bind
+        published_ports:
+          - "3001:3000"
+
+    # ==> Grafana 2
+    - name: The user details
+      user:
+        name: "{{ ansible_env.USER }}"
+      register: user_result
+
+    - debug:
+        var: user_result.uid
+
+    - name: Create data2 directory for Grafana
+      file: 
+        state: directory
+        path: "{{ ansible_env.HOME }}/grafana2-data"
+
+    - name: Create a container2 for Grafana
+      docker_container:
+        name: nemo2-grafana
+        image: grafana/grafana
+        state: started
+        user: "{{ user_result.uid }}"
+        mounts:
+          - target: "/var/lib/grafana"
+            source: "{{ ansible_env.HOME }}/grafana2-data"
+            type: bind
+        published_ports:
+          - "3002:3000"
+
+  handlers:
+    - name: reload firewalld
+      become: yes
+      systemd:
+        name: firewalld
+        state: reloaded

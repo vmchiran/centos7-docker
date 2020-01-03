@@ -83,6 +83,15 @@ docker container run --detach --name redis -v redis_data:/data --network moby-co
 docker-machine create -d virtualbox swarm-manager
 ~~~
 
+## Grafana
+~~~
+docker run -d -p 3000:3000 grafana/grafana
+
+mkdir grafana-data
+ID=$(id -u)
+docker run -d --name=my-grafana --user $ID --mount type=bind,source=/home/vagrant/grafana-data,target=/var/lib/grafana -p 3001:3000 grafana/grafana
+~~~
+
 # References and Inspiration
 * https://technology.amis.nl/2018/05/21/rapidly-spinning-up-a-vm-with-ubuntu-and-docker-on-my-windows-machine-using-vagrant-and-virtualbox/
 * Disaster Girl Meme [Worked fine in dev ops problem now](http://www.developermemes.com/2013/12/13/worked-fine-dev-ops-problem-now/)

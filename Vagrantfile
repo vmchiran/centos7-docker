@@ -76,16 +76,7 @@ Vagrant.configure("2") do |config|
   # SHELL
 
   config.vm.define "dkr" do |machine|
-    # Running on Ethernet adapter VirtualBox Host-Only Network #2
-    # machine.vm.network "private_network", ip: "172.16.0.100"
-
-    # Port 8080 to be used by local fn server
-    # machine.vm.network "forwarded_port", guest: 8080, host: 8080
-    # Port 4000 to be used by local fn monitoring dashboard
-    # machine.vm.network "forwarded_port", guest: 4000, host: 4000
-    # Port 3000 to be used by a test service
-    machine.vm.network "forwarded_port", guest: 3000, host: 3000
-    
+    machine.vm.network "private_network", ip: "172.16.0.100"   
 
     machine.vm.provider "virtualbox" do |vb|
       vb.memory = 2048

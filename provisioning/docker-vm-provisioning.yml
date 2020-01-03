@@ -3,21 +3,23 @@
 # Add -v for verbose or -vvv for more
 ---
 
-- name: Configure CentOS7 with docker
+- name: Configure CentOS7 with Docker
   hosts: dkr
   tasks:
-    # ==> Upgrade existing packages
-    - name: Upgrade existing packages
+    # ==> Upgrade all packages
+    - name: Upgrade all packages
       become: yes
       yum:
         name: '*'
         state: latest
 
-    # ==> Install epel-release, needed by pip, jq
-    - name: Install epel-release
+    # ==> Install repos, for latest python, pip
+    - name: Install IUS repo
       become: yes
       yum:
-        name: epel-release
+        name:
+          - "https://repo.ius.io/ius-release-el7.rpm"
+          - "https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm"
         state: present
 
     # ==> Install packages: tree and unzip are optional, jq is used for some docker commands, pip is used for docker-compose
@@ -31,15 +33,24 @@
           - jq
         state: present
 
-    # ==> Install packages for docker
-    - name: Install dependencies packages for docker
+    # ==> Upgrade pip
+    - name: Upgrade pip
       become: yes
-      yum:
-        name:
-          - yum-utils
-          - device-mapper-persistent-data
-          - lvm2
-        state: present
+      pip:
+        name: pip
+        state: latest
+
+    # ==> Install packages for docker
+    # - name: Install dependencies packages for docker
+    #   become: yes
+    #   yum:
+    #     name:
+    #       - yum-utils
+    #       - device-mapper-persistent-data
+    #       - lvm2
+    #     state: present
+
+    # ==> Install Docker CE
 
     - name: Add the docker-ce stable repository
       become: yes
@@ -69,14 +80,15 @@
         groups: docker
         append: yes
 
-    - name: Install docker-compose
-      become: yes
+    - name: Install docker sdk for python
+      # become: yes
       pip:
-        name:
-          - docker-compose
+        name: docker
+        extra_args: --user
+        state: present
 
-    # - name: Make sure that service firewalld is running
-    #   become: yes
-    #   systemd:
-    #     state: started
-    #     name: firewalld
+    # - name: Install docker-compose
+    #   # become: yes
+    #   pip:
+    #     name: docker-compose
+    #     extra_args: --user
